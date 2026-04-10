@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Disaster Rescue Route Planner</title>
+  <meta name="description" content="Emergency route planning tool that finds the safest and shortest paths during disasters using Dijkstra and BFS algorithms." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ── HEADER ──────────────────────────────────────────────────────────── -->
+  <header class="app-header">
+    <div class="header-brand">
+      <svg class="brand-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="currentColor" opacity="0.3"/>
+        <path d="M12 11.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/>
+        <path d="M3 18h18M6 15l-3 3 3 3M18 15l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <h1 class="brand-title">Disaster Rescue</h1>
+        <span class="brand-subtitle">Route Planner</span>
+      </div>
+    </div>
+    <div class="header-status">
+      <span class="status-dot" id="db-status-dot"></span>
+      <span id="db-status-label">Connecting…</span>
+    </div>
+  </header>
+
+  <!-- ── MAIN LAYOUT ──────────────────────────────────────────────────────── -->
+  <div class="app-layout">
+
+    <!-- ── SIDEBAR ──────────────────────────────────────────────────────── -->
+    <aside class="sidebar" id="sidebar">
+
+      <!-- Quick Actions -->
+      <section class="sidebar-section">
+        <h2 class="section-title">Quick Actions</h2>
+        <div class="btn-group-vertical">
+          <button class="btn btn-primary" id="btn-seed">
+            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg>
+            Load Sample City
+          </button>
+          <button class="btn btn-danger" id="btn-clear">
+            <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg>
+            Clear Graph
+          </button>
+        </div>
+      </section>
+
+      <!-- Add Node -->
+      <section class="sidebar-section">
+        <h2 class="section-title">Add Location</h2>
+        <form id="form-add-node" class="form-card">
+          <div class="form-row">
+            <label>ID</label>
+            <input type="text" id="node-id" placeholder="e.g. 10" required />
+          </div>
+          <div class="form-row">
+            <label>Name</label>
+            <input type="text" id="node-name" placeholder="e.g. Zone F" required />
+          </div>
+          <div class="form-row">
+            <label>Type</label>
+            <select id="node-type">
+              <option value="area">Affected Area</option>
+              <option value="hospital">Hospital</option>
+              <option value="rescue">Rescue Center</option>
+            </select>
+          </div>
+          <p class="form-hint">💡 Click on the canvas to set position, then submit.</p>
+          <button type="submit" class="btn btn-accent">Add Location</button>
+        </form>
+      </section>
+
+      <!-- Add Edge -->
+      <section class="sidebar-section">
+        <h2 class="section-title">Add Road</h2>
+        <form id="form-add-edge" class="form-card">
+          <div class="form-row">
+            <label>From (Node ID)</label>
+            <input type="text" id="edge-from" placeholder="e.g. 0" required />
+          </div>
+          <div class="form-row">
+            <label>To (Node ID)</label>
+            <input type="text" id="edge-to" placeholder="e.g. 5" required />
+          </div>
+          <div class="form-row">
+            <label>Weight (distance)</label>
+            <input type="number" id="edge-weight" placeholder="e.g. 7" min="1" required />
+          </div>
+          <button type="submit" class="btn btn-accent">Add Road</button>
+        </form>
+      </section>
+
+      <!-- Block / Unblock Road -->
+      <section class="sidebar-section">
+        <h2 class="section-title">Block / Unblock Road</h2>
+        <div class="form-card">
+          <div class="form-row">
+            <label>From</label>
+            <input type="text" id="block-from" placeholder="Node ID" />
+          </div>
+          <div class="form-row">
+            <label>To</label>
+            <input type="text" id="block-to" placeholder="Node ID" />
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-danger" id="btn-block">🚧 Block</button>
+            <button class="btn btn-success" id="btn-unblock">✅ Unblock</button>
+          </div>
+          <p class="form-hint">💡 Or click an edge on canvas to select it.</p>
+        </div>
+      </section>
+
+      <!-- Find Route -->
+      <section class="sidebar-section">
+        <h2 class="section-title">Find Route</h2>
+        <div class="form-card">
+          <div class="form-row">
+            <label>Source Node ID</label>
+            <input type="text" id="route-source" placeholder="e.g. 0" />
+          </div>
+          <div class="form-row">
+            <label>Target Node ID</label>
+            <input type="text" id="route-target" placeholder="e.g. 9" />
+          </div>
+          <div class="form-row">
+            <label>Algorithm</label>
+            <select id="route-algorithm">
+              <option value="dijkstra">Dijkstra (weighted)</option>
+              <option value="bfs">BFS (unweighted)</option>
+            </select>
+          </div>
+          <div class="btn-group-vertical">
+            <button class="btn btn-primary" id="btn-find-route">🗺️ Find Route</button>
+            <button class="btn btn-accent" id="btn-multisource">🏥 Nearest Rescue</button>
+            <button class="btn btn-secondary" id="btn-clear-path">✖ Clear Path</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Legend -->
+      <section class="sidebar-section">
+        <h2 class="section-title">Legend</h2>
+        <div class="legend">
+          <div class="legend-item"><span class="legend-dot hospital"></span> Hospital</div>
+          <div class="legend-item"><span class="legend-dot rescue"></span> Rescue Center</div>
+          <div class="legend-item"><span class="legend-dot area"></span> Affected Area</div>
+          <div class="legend-item"><span class="legend-line active-path"></span> Active Path</div>
+          <div class="legend-item"><span class="legend-line alt-path"></span> Alternative Path</div>
+          <div class="legend-item"><span class="legend-line blocked"></span> Blocked Road</div>
+        </div>
+      </section>
+
+    </aside>
+
+    <!-- ── CANVAS AREA ──────────────────────────────────────────────────── -->
+    <main class="canvas-area">
+      <div class="canvas-toolbar">
+        <span class="toolbar-hint" id="toolbar-hint">Load sample data or add nodes to begin</span>
+        <div class="mode-badges">
+          <span class="badge" id="mode-badge-select">Select Mode</span>
+        </div>
+      </div>
+      <canvas id="graph-canvas"></canvas>
+
+      <!-- Path Result Panel -->
+      <div class="result-panel" id="result-panel" style="display:none">
+        <div class="result-header">
+          <h3 id="result-title">Route Found</h3>
+          <button class="btn-icon" id="result-close">✕</button>
+        </div>
+        <div class="result-body">
+          <div class="result-block primary-block" id="primary-result">
+            <div class="result-label">PRIMARY PATH</div>
+            <div class="result-path" id="primary-path-text"></div>
+            <div class="result-meta" id="primary-meta"></div>
+          </div>
+          <div class="result-block alt-block" id="alt-result" style="display:none">
+            <div class="result-label">ALTERNATIVE PATH</div>
+            <div class="result-path" id="alt-path-text"></div>
+            <div class="result-meta" id="alt-meta"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- ── TOAST NOTIFICATION ──────────────────────────────────────────────── -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- ── SCRIPTS ─────────────────────────────────────────────────────────── -->
+  <script src="js/api.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+{
+    "nodes": [
+        {
+            "id": "0",
+            "name": "City Hospital",
+            "x": 120,
+            "y": 100,
+            "type": "hospital"
+        },
+        {
+            "id": "1",
+            "name": "St. Mary Hospital",
+            "x": 650,
+            "y": 80,
+            "type": "hospital"
+        },
+        {
+            "id": "2",
+            "name": "Fire Station Alpha",
+            "x": 200,
+            "y": 280,
+            "type": "rescue"
+        },
+        {
+            "id": "3",
+            "name": "Fire Station Beta",
+            "x": 500,
+            "y": 260,
+            "type": "rescue"
+        },
+        {
+            "id": "4",
+            "name": "Rescue HQ",
+            "x": 370,
+            "y": 160,
+            "type": "rescue"
+        },
+        {
+            "id": "5",
+            "name": "Zone A (Affected)",
+            "x": 130,
+            "y": 440,
+            "type": "area"
+        },
+        {
+            "id": "6",
+            "name": "Zone B (Affected)",
+            "x": 350,
+            "y": 400,
+            "type": "area"
+        },
+        {
+            "id": "7",
+            "name": "Zone C (Affected)",
+            "x": 560,
+            "y": 430,
+            "type": "area"
+        },
+        {
+            "id": "8",
+            "name": "Zone D (Affected)",
+            "x": 680,
+            "y": 310,
+            "type": "area"
+        },
+        {
+            "id": "9",
+            "name": "Zone E (Affected)",
+            "x": 280,
+            "y": 530,
+            "type": "area"
+        }
+    ],
+    "edges": [
+        {
+            "from": "0",
+            "to": "2",
+            "weight": 5,
+            "blocked": false
+        },
+        {
+            "from": "0",
+            "to": "4",
+            "weight": 8,
+            "blocked": false
+        },
+        {
+            "from": "1",
+            "to": "3",
+            "weight": 6,
+            "blocked": false
+        },
+        {
+            "from": "1",
+            "to": "4",
+            "weight": 10,
+            "blocked": false
+        },
+        {
+            "from": "2",
+            "to": "4",
+            "weight": 7,
+            "blocked": false
+        },
+        {
+            "from": "2",
+            "to": "5",
+            "weight": 4,
+            "blocked": false
+        },
+        {
+            "from": "3",
+            "to": "4",
+            "weight": 9,
+            "blocked": false
+        },
+        {
+            "from": "3",
+            "to": "7",
+            "weight": 5,
+            "blocked": false
+        },
+        {
+            "from": "3",
+            "to": "8",
+            "weight": 6,
+            "blocked": false
+        },
+        {
+            "from": "4",
+            "to": "6",
+            "weight": 6,
+            "blocked": false
+        },
+        {
+            "from": "5",
+            "to": "6",
+            "weight": 7,
+            "blocked": true
+        },
+        {
+            "from": "5",
+            "to": "9",
+            "weight": 3,
+            "blocked": false
+        },
+        {
+            "from": "6",
+            "to": "7",
+            "weight": 8,
+            "blocked": false
+        },
+        {
+            "from": "6",
+            "to": "9",
+            "weight": 5,
+            "blocked": false
+        },
+        {
+            "from": "7",
+            "to": "8",
+            "weight": 4,
+            "blocked": true
+        }
+    ]
+}
